@@ -1,0 +1,92 @@
+-- Create the employee table
+CREATE TABLE employee (
+    eid INT PRIMARY KEY,
+    ename VARCHAR(100),
+    salary DECIMAL(10, 2)
+);
+
+-- Create the project table
+CREATE TABLE project (
+    projectid INT PRIMARY KEY,
+    project_name VARCHAR(100),
+    manager INT,
+    FOREIGN KEY (manager) REFERENCES manager(eid)
+);
+
+-- Create the manager table
+CREATE TABLE manager (
+    eid INT PRIMARY KEY,
+    ename VARCHAR(100)
+);
+
+-- Create the assignment table
+CREATE TABLE assignment (
+    projectid INT,
+    eid INT,
+    PRIMARY KEY (projectid, eid),
+    FOREIGN KEY (projectid) REFERENCES project(projectid),
+    FOREIGN KEY (eid) REFERENCES employee(eid)
+);
+
+-- Insert data into employee table
+INSERT INTO employee (eid, ename, salary, address)
+VALUES 
+(1, 'Alice', 45000, '123 Elm St'),
+(2, 'Bob', 39000, '456 Pine St'),
+(3, 'John', 52000, '789 Oak St'),
+(4, 'Jane', 47000, '101 Maple Ave');
+
+-- Insert data into manager table
+INSERT INTO manager (eid, ename)
+VALUES 
+(1, 'Charlie'),
+(2, 'Diana'),
+(3, 'Evan'),
+(4, 'Fiona');
+
+-- Insert data into project table
+INSERT INTO project (projectid, project_name, manager)
+VALUES 
+(101, 'Bank Management', 1),
+(102, 'Inventory System', 2),
+(103, 'E-Commerce Platform', 3),
+(104, 'Healthcare Portal', 4);
+
+-- Insert data into assignment table
+INSERT INTO assignment (projectid, eid)
+VALUES 
+(101, 1),
+(102, 2),
+(103, 3),
+(104, 4);
+
+1]Add address to the employee table:
+ALTER TABLE employee ADD COLUMN address VARCHAR(255);
+
+2]Display employee name and projects on which they are working:
+SELECT e.ename AS Employee_Name, p.project_name AS Project_Name
+FROM employee e
+JOIN assignment a ON e.eid = a.eid
+JOIN project p ON a.projectid = p.projectid;
+
+3]Display projectid, project_name, and their managers:
+SELECT p.projectid, p.project_name, m.ename AS Manager_Name
+FROM project p
+JOIN manager m ON p.manager = m.eid;
+
+4]Create a view of employees working on the "Bank Management" project:
+CREATE VIEW BankManagementEmployees AS
+SELECT e.eid, e.ename, e.salary
+FROM employee e
+JOIN assignment a ON e.eid = a.eid
+JOIN project p ON a.projectid = p.projectid
+WHERE p.project_name = 'Bank Management';
+
+5]Print names of employees whose salary is greater than 40,000:
+SELECT ename
+FROM employee
+WHERE salary > 40000;
+
+6]Update the salary of each employee with an increase of Rs. 2000:
+UPDATE employee
+SET salary = salary + 2000;
