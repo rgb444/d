@@ -1,0 +1,41 @@
+db.student.insertMany([
+  { "name": "Alice", "class": "S.Y.", "age": 20, "grade": "Distinction" },
+  { "name": "Bob", "class": "S.Y.", "age": 21, "grade": "First Class" },
+  { "name": "Charlie", "class": "T.Y.", "age": 22, "grade": "Distinction" },
+  { "name": "David", "class": "Final Year", "age": 23, "grade": "Second Class" },
+  { "name": "Eve", "class": "S.Y.", "age": 20, "grade": "Distinction" },
+  { "name": "Frank", "class": "T.Y.", "age": 22, "grade": "First Class" },
+  { "name": "Grace", "class": "S.Y.", "age": 21, "grade": "Second Class" },
+  { "name": "Hank", "class": "Final Year", "age": 24, "grade": "Distinction" },
+  { "name": "Ivy", "class": "S.Y.", "age": 25, "grade": "Distinction" },
+  { "name": "Jack", "class": "T.Y.", "age": 26, "grade": "Distinction" }
+]);
+
+[1]Display all records from the student collection:
+db.student.find();
+
+[2]Display students from S.Y. class only:
+db.student.find({ "class": "S.Y." });
+
+[3]Display S.Y. students having distinction using $and:
+db.student.find({ 
+  $and: [ 
+    { "class": "S.Y." }, 
+    { "grade": "Distinction" } 
+  ] 
+});
+
+[4] Display students having distinction from S.Y., T.Y., or Final Year using $and, $or:
+db.student.find({
+  $and: [
+    { "grade": "Distinction" },
+    { $or: [
+      { "class": "S.Y." },
+      { "class": "T.Y." },
+      { "class": "Final Year" }
+    ]}
+  ]
+});
+
+[5] Display students with age at least 30:
+db.student.find({ "age": { $gte: 30 } });
