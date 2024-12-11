@@ -1,0 +1,62 @@
+CREATE TABLE Customer (
+    Cid INT PRIMARY KEY,
+    CustName VARCHAR(100) NOT NULL,
+    City VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE Product (
+    Pid INT PRIMARY KEY,
+    ProductName VARCHAR(100) NOT NULL,
+    Qty INT NOT NULL CHECK (Qty >= 0) -- Ensure quantity is non-negative
+);
+
+CREATE TABLE Order (
+    Oid INT PRIMARY KEY,
+    Cid INT,
+    Pid INT,
+    Qty INT NOT NULL CHECK (Qty > 0), -- Ensure quantity is greater than 0
+    FOREIGN KEY (Cid) REFERENCES Customer(Cid),
+    FOREIGN KEY (Pid) REFERENCES Product(Pid)
+);
+
+INSERT INTO Customer (Cid, CustName, City) VALUES
+(1, 'Alice', 'New York'),
+(2, 'Bob', 'Los Angeles'),
+(3, 'Charlie', 'Chicago');
+
+INSERT INTO Product (Pid, ProductName, Qty) VALUES
+(101, 'Laptop', 50),
+(102, 'Smartphone', 100),
+(103, 'Tablet', 75);
+
+DELIMITER $$
+
+CREATE TRIGGER UpdateProductQty
+AFTER INSERT ON `Order`
+FOR EACH ROW
+BEGIN
+    -- Check if sufficient product quantity is available
+    DECLARE availableQty INT;
+    SELECT Qty INTO availableQty FROM Product WHERE Pid = NEW.Pid;
+    
+    IF availableQty < NEW.Qty THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Insufficient product quantity to fulfill the order';
+    ELSE
+        -- Update product quantity in the Product table
+        UPDATE Product
+        SET Qty = Qty - NEW.Qty
+        WHERE Pid = NEW.Pid;
+    END IF;
+END$$
+
+DELIMITER ;
+
+-- Place an order
+INSERT INTO Order (Oid, Cid, Pid, Qty) VALUES (1, 1, 101, 2);
+
+-- Check updated quantity in Product table
+SELECT * FROM Product;
+
+-- Attempt to place an order exceeding available stock
+INSERT INTO Order (Oid, Cid, Pid, Qty) VALUES (2, 1, 101, 100);
