@@ -1,0 +1,41 @@
+db.restaurants.insertMany([
+  {
+    restaurantId: "R001",
+    name: "Pizza Place",
+    cuisine: "Italian",
+    score: 85,
+    address: "123 Pizza St, Cityville"
+  },
+  {
+    restaurantId: "R002",
+    name: "Sushi Spot",
+    cuisine: "Japanese",
+    score: 90,
+    address: "456 Sushi Ave, Townsville"
+  },
+  {
+    restaurantId: "R003",
+    name: "Taco Town",
+    cuisine: "Mexican",
+    score: 75,
+    address: "789 Taco Rd, Villageburg"
+  }
+]);
+
+[1]Display all the documents in the restaurants collection:
+db.restaurants.find({});
+
+[2]Display all the documents in the restaurants collection with fields Name, Cuisine, Score, and exclude Id and Address:
+db.restaurants.find({}, { _id: 0, name: 1, cuisine: 1, score: 1 });
+
+[3]Find the restaurants who achieved a score greater than 80:
+db.restaurants.find({ score: { $gt: 80 } });
+
+[4]Find the restaurant with the highest score:
+db.restaurants.find().sort({ score: -1 }).limit(1);
+
+[5]Find the count of restaurants for each cuisine:
+db.restaurants.aggregate([
+  { $group: { _id: "$cuisine", count: { $sum: 1 } } }
+]);
+
