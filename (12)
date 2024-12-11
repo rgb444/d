@@ -1,0 +1,90 @@
+-- Create supplier table
+CREATE TABLE supplier (
+    supplierid INT PRIMARY KEY,
+    sname VARCHAR(100),
+    saddress VARCHAR(200)
+);
+
+-- Create parts table
+CREATE TABLE parts (
+    part_id INT PRIMARY KEY,
+    part_name VARCHAR(100),
+    color VARCHAR(50)
+);
+
+-- Create catalog table
+CREATE TABLE catalog (
+    supplierid INT,
+    part_id INT,
+    cost DECIMAL(10, 2),
+    PRIMARY KEY (supplierid, part_id),
+    FOREIGN KEY (supplierid) REFERENCES supplier(supplierid),
+    FOREIGN KEY (part_id) REFERENCES parts(part_id)
+);
+
+-- Insert data into supplier table
+INSERT INTO supplier (supplierid, sname, saddress)
+VALUES (1, 'Supplier A', '123 Supplier St'),
+       (2, 'Supplier B', '456 Supplier Ave'),
+       (3, 'Supplier C', '789 Supplier Blvd');
+
+-- Insert data into parts table
+INSERT INTO parts (part_id, part_name, color)
+VALUES (1, 'Part 1', 'green'),
+       (2, 'Part 2', 'blue'),
+       (3, 'Part 3', 'red'),
+       (4, 'Part 4', 'green'),
+       (5, 'Part 5', 'blue');
+
+-- Insert data into catalog table
+INSERT INTO catalog (supplierid, part_id, cost)
+VALUES (1, 1, 50.00),   -- Supplier A supplies Part 1 (green) with cost 50
+       (1, 4, 60.00),   -- Supplier A supplies Part 4 (green) with cost 60
+       (2, 2, 40.00),   -- Supplier B supplies Part 2 (blue) with cost 40
+       (2, 5, 45.00),   -- Supplier B supplies Part 5 (blue) with cost 45
+       (3, 3, 30.00),   -- Supplier C supplies Part 3 (red) with cost 30
+       (3, 1, 55.00);   -- Supplier C supplies Part 1 (green) with cost 55
+
+[1]Find name of supplier who supplies 'green' parts.
+SELECT DISTINCT s.sname
+FROM supplier s
+JOIN catalog c ON s.supplierid = c.supplierid
+JOIN parts p ON c.part_id = p.part_id
+WHERE p.color = 'green';
+
+[2]Find name of suppliers who supply both blue and green parts.
+SELECT s.sname
+FROM supplier s
+JOIN catalog c ON s.supplierid = c.supplierid
+JOIN parts p ON c.part_id = p.part_id
+WHERE p.color IN ('blue', 'green')
+GROUP BY s.supplierid
+HAVING COUNT(DISTINCT p.color) = 2;
+
+[3]Find supplier who supplies all parts.
+SELECT s.sname
+FROM supplier s
+JOIN catalog c ON s.supplierid = c.supplierid
+GROUP BY s.supplierid
+HAVING COUNT(DISTINCT c.part_id) = (SELECT COUNT(*) FROM parts);
+
+[4]Find total cost of red parts.
+SELECT SUM(c.cost) AS total_red_cost
+FROM catalog c
+JOIN parts p ON c.part_id = p.part_id
+WHERE p.color = 'red';
+
+[5]Find supplier who supplies green parts with minimum cost.
+SELECT s.sname, MIN(c.cost) AS min_cost
+FROM supplier s
+JOIN catalog c ON s.supplierid = c.supplierid
+JOIN parts p ON c.part_id = p.part_id
+WHERE p.color = 'green'
+GROUP BY s.supplierid
+ORDER BY min_cost ASC
+LIMIT 1;
+
+[6]Update color of part having part_id = 4 and supplier_id = 2.
+UPDATE parts
+SET color = 'yellow'
+WHERE part_id = 4 AND part_id IN (SELECT part_id FROM catalog WHERE supplierid = 2);
