@@ -1,0 +1,88 @@
+MongoDB Schema Design
+The schema for the restaurants collection will have the following structure:
+
+{
+  "RestaurantId": ObjectId,
+  "Name": String,
+  "Cuisine": String,
+  "Score": Number,
+  "Address": {
+    "Street": String,
+    "City": String,
+    "Zipcode": String
+  }
+}
+
+db.restaurants.insertMany([
+  {
+    "RestaurantId": ObjectId("64abcd12345abcde6789f123"),
+    "Name": "The Food Place",
+    "Cuisine": "Italian",
+    "Score": 85,
+    "Address": {
+      "Street": "123 Elm Street",
+      "City": "New York",
+      "Zipcode": "10001"
+    }
+  },
+  {
+    "RestaurantId": ObjectId("64abcd12345abcde6789f124"),
+    "Name": "Spicy House",
+    "Cuisine": "Indian",
+    "Score": 78,
+    "Address": {
+      "Street": "456 Maple Avenue",
+      "City": "Boston",
+      "Zipcode": "02115"
+    }
+  },
+  {
+    "RestaurantId": ObjectId("64abcd12345abcde6789f125"),
+    "Name": "Burger Haven",
+    "Cuisine": "American",
+    "Score": 92,
+    "Address": {
+      "Street": "789 Oak Blvd",
+      "City": "Chicago",
+      "Zipcode": "60610"
+    }
+  },
+  {
+    "RestaurantId": ObjectId("64abcd12345abcde6789f126"),
+    "Name": "Sushi World",
+    "Cuisine": "Japanese",
+    "Score": 88,
+    "Address": {
+      "Street": "321 Birch Lane",
+      "City": "San Francisco",
+      "Zipcode": "94110"
+    }
+  }
+]);
+
+[1]Display all documents in the restaurants collection
+db.restaurants.find({});
+
+[2]Display documents with Name, Cuisine, and Score fields while excluding _id and Address
+db.restaurants.find(
+  {}, 
+  { Name: 1, Cuisine: 1, Score: 1, _id: 0, Address: 0 }
+);
+
+[3]Find restaurants that achieved a score more than 80
+db.restaurants.find(
+  { Score: { $gt: 80 } }
+);
+
+[4]Find the restaurant having the highest score
+db.restaurants.find({})
+  .sort({ Score: -1 }) // Sort in descending order of Score
+  .limit(1);           // Limit the result to 1 document
+
+[5]Count the number of restaurants for each cuisine
+db.restaurants.aggregate([
+  { $group: { _id: "$Cuisine", count: { $sum: 1 } } }
+]);
+
+
+
